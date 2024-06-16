@@ -1,0 +1,233 @@
+---
+title: "Data Programming" 
+subtitle: "Project" 
+author: "Masa Radovanovic" 
+date: "`r format(Sys.time(), '%e %B %Y')`" 
+format: 
+  html: 
+    embed-resources: true 
+execute:
+  warning: false 
+  messages: false 
+  echo: true 
+  error: true
+---
+
+# Netflix movies and TV shows
+
+## Introduction
+
+The Netflix movies and TV shows dataset provides comprehensive information about the content available on Netflix. The primary problem we will explore is: "What are the key characteristics of Netflix's content library, and how can we analyze trends over time?" We will analyze various features such as genre, release year, and ratings to understand their distribution and trends.
+
+## Presentation of the data
+
+```{r}
+library(tidyverse)
+library(readr)
+netflix_data <- read_csv("C:/Users/11/Desktop/netflix_full.csv")
+head(netflix_data)
+glimpse(netflix_data)
+
+# Detailed explanation of each column:
+# 1. id: Unique identifier for each show
+# 2. type: Type of content, either "Movie" or "TV Show" 
+# 3. name: Title of the movie or TV show 
+# 4. creator: Creator(s) of the movie or TV show 
+# 5. starring: Main cast of the movie or TV show
+# 6. year: Release year of the movie or TV show
+# 7. rating: Rating of the movie or TV show 
+# 8. time: Duration of the movie in minutes
+# 9. genres: Genres or categories the movie or TV show belongs to 
+# 10. country: Country where the movie or TV show was produced 
+# 11. describle: Brief description or summary of the movie or TV show 
+
+```
+
+## Aggregation of data
+
+1.  **Count by Content Type:**
+
+-   This table shows the number of movies and TV shows in the dataset.
+
+-   Helps to understand the distribution of different types of content available on Netflix.
+
+    ```{r}
+    count_by_type <- netflix_data %>%
+      group_by(type) %>%
+      summarise(count = n())
+    print(count_by_type)
+
+    ```
+
+2.  **Count by Release Year:**
+
+-   This table shows the number of movies and TV shows released in each year.
+
+-   Helps to identify trends in content release over time.
+
+    ```{r}
+    netflix_data <- netflix_data %>%
+      mutate(year = as.numeric(year))
+
+    count_by_year <- netflix_data %>%
+      group_by(year) %>%
+      summarise(count = n()) %>%
+      arrange(desc(count))
+
+    print(count_by_year)
+
+
+    ```
+
+3.  **Count by Rating:**
+
+-   This table shows the count of content items for each rating category.
+
+-   Useful for understanding the distribution of content ratings and the prevalence of various rating categories.
+
+    ```{r}
+    count_by_rating <- netflix_data %>%
+      group_by(rating) %>%
+      summarise(count = n()) %>%
+      arrange(desc(count))
+
+    print(count_by_rating)
+
+    ```
+
+4.  **Count by Country:**
+
+-   This table shows the number of content items produced in each country.
+
+-   Provides insights into the geographical diversity of Netflix's content library.
+
+    ```{r}
+    count_by_country <- netflix_data %>%
+      group_by(country) %>%
+      summarise(count = n()) %>%
+      arrange(desc(count))
+
+    print(count_by_country)
+
+    ```
+
+## Exploratory data analysis
+
+### *1. Distribution of Content Types*
+
+Visualize the distribution of content types (Movies vs TV Shows).
+
+```{r}
+plot_content_type <- ggplot(netflix_data, aes(x = type, fill = type)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Content Types on Netflix",
+    x = "Type",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+print(plot_content_type)
+
+
+#Using a bar plot where the x-axis represents the content type and the y-axis represents the count of each type.
+
+```
+
+### *2. Top 10 Countries with Most Content*
+
+Display the top 10 countries with the most content available on Netflix.
+
+```{r}
+top_countries <- netflix_data %>%
+  group_by(country) %>%
+  summarise(count = n()) %>%
+  top_n(10, wt = count) %>%
+  arrange(desc(count))
+
+plot_top_countries <- ggplot(top_countries, aes(x = fct_reorder(country, count), y = count, fill = country)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Top 10 Countries with Most Content on Netflix",
+    x = "Country",
+    y = "Count"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(plot_top_countries)
+
+
+# Using a bar plot where each bar represents a country, and the height of the bar represents the count of content items from that country.
+# Countries are ordered by the count of content in descending order.
+
+```
+
+### *3. Distribution of Ratings*
+
+Visualize the distribution of ratings for Netflix content.
+
+```{r}
+plot_ratings <- ggplot(netflix_data, aes(x = rating, fill = rating)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Ratings for Netflix Content",
+    x = "Rating",
+    y = "Count"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(plot_ratings)
+
+
+# Using a bar plot where each bar represents a rating category, and the height of the bar represents the count of content items with that rating.
+# Ratings are shown on the x-axis, and the y-axis represents the count of content items.
+
+```
+
+## Interpretation/Conclusion
+
+#### Overview
+
+The project focused on analyzing the Netflix dataset to gain insights into the distribution of content types, top countries with the most content, and the distribution of ratings.
+
+#### Key Findings
+
+-   *Distribution of Content Types*
+
+From the analysis, it was found that Netflix predominantly offers two types of content: Movies and TV Shows. The distribution showed that there are slightly more Movies than TV Shows available on the platform.
+
+-   *Top Countries with Most Content*
+
+The analysis revealed the top 10 countries contributing the most content to Netflix. The United States emerged as the leading country, followed by India, the United Kingdom, Canada, and France among others. This highlights Netflix's global content acquisition strategy, with a significant emphasis on content from the United States.
+
+-   *Distribution of Ratings*
+
+The distribution of ratings for Netflix content varied, with the majority falling under categories like TV-MA (Mature Audience), TV-14 (Parents Strongly Cautioned), and TV-PG (Parental Guidance Suggested). This indicates the diverse audience preferences catered to by Netflix, ranging from family-friendly to mature content.
+
+#### Insights and Implications
+
+-   **Content Diversity**: Netflix offers a diverse range of content types, appealing to various audience demographics globally. The balance between Movies and TV Shows ensures a broad selection for subscribers.
+
+-   **Global Content Strategy**: The dominance of content from the United States underscores Netflix's strategy to provide a mix of local and international content, enhancing its global appeal.
+
+-   **Audience Targeting**: The distribution of ratings reflects Netflix's efforts to cater to different audience preferences, ensuring a wide range of content suitable for various age groups and viewer preferences.
+
+#### Limitations and Future Directions
+
+-   **Data Completeness**: The analysis assumes the dataset is comprehensive and representative. Further validation and updates to the dataset would ensure accuracy in insights.
+
+-   **Temporal Analysis**: Future studies could explore trends over time, analyzing changes in content types, ratings, and countries contributing content to Netflix.
+
+-   **User Preferences**: Incorporating user ratings and reviews could provide deeper insights into viewer preferences and satisfaction with Netflix content.
+
+#### <font color="red">Conclusion </font>
+
+In conclusion, the project effectively explored and visualized key aspects of the Netflix dataset, providing valuable insights into content distribution, global reach, and audience preferences. The findings underscore Netflix's role as a leading global streaming service, continually expanding its content library to cater to diverse viewer interests worldwide.
+
+Through comprehensive data analysis and visualization techniques, this project demonstrated the capability to extract meaningful insights from large-scale datasets, offering a foundation for further research and decision-making in the entertainment industry.
+
+## References
+
+1.Dataset: Dang Huu Tri, Netflix Movies, Kaggle, 2024.
+
+Hyperlink: [Netflix Movies](https://www.kaggle.com/datasets/danghuutri/netflix-movies "netflix movies")
